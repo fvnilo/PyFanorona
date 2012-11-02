@@ -65,10 +65,10 @@ class Board:
     def print_board(self):
         """Prints the current state board"""
         print "  A B C D E F G H I"
-        for i in range(5, 0, -1):
-            line = str(i) + " "
-            for j in range(0, 9):
-                stone = self.check(i * 9 + j - 9)
+        for i in range(5):
+            line = str(5-i) + " "
+            for j in range(9):
+                stone = self.check((4-i) * 9 + j)
                 if stone == 1:
                     line += "O "
                 elif stone == 2:

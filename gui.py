@@ -3,8 +3,8 @@ import sys
 from helpers import load_image
 
 class GUI:
-    def __init__(self, game, width=800,height=431):
-        self.game = game
+    def __init__(self, board, width=800,height=431):
+        self.board = board
         self.width = width
         self.height = height
         self.background = pygame.image.load("data/images/board.png")
@@ -40,7 +40,7 @@ class GUI:
                 yPos = yOff + y*self.stone_size + y*self.space_dist
                 
                 pos = (4-y) * 9 + x;
-                stone = self.game.board.check(pos)
+                stone = self.board.check(pos)
                 
                 if stone != 0:
                     self.one_stones.add(Stone(stone, pygame.Rect(xPos, yPos, self.stone_size, self.stone_size)))

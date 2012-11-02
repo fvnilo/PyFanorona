@@ -26,14 +26,14 @@ class FanoronaGame:
         
     def start(self):
         """Starts the game with GUI"""
-        gui = GUI(self)
+        gui = GUI(self.board)
         gui.start_main_loop()
     
     def start_text(self):
         """Starts the game in text mode"""
         black = False # white begin the game
         while not self.board.game_is_finished():
-            self.board.draw_board()
+            self.board.print_board()
             
             if black:
                 prompt = "black> "
