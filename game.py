@@ -16,35 +16,30 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from board import Board
+from gui import GUI
 
 class FanoronaGame:
     """This class represents the game as is it."""
-    def __init__(self, white_ai = None, black_ai = None):
+    def __init__(self):
         """Ctor"""
-        self._board = Board()
-        self._white_ai = white_ai
-        self._black_ai = black_ai
+        self.board = Board()
         
     def start(self):
-        """Starts the game"""
+        """Starts the game with GUI"""
+        gui = GUI(self)
+        gui.start_main_loop()
+    
+    def start_text(self):
+        """Starts the game in text mode"""
         black = False # white begin the game
-        while not self._board.game_is_finished():
-            self._board.draw_board()
-            move = ""
-            prompt = ""
+        while not self.board.game_is_finished():
+            self.board.draw_board()
             
-            if black and self._black_ai == None:
+            if black:
                 prompt = "black> "
-            elif not black and self._white_ai == None:
+            else:
                 prompt = "white> "
             
-            if prompt != "":
-                move = raw_input(prompt)
-            else:
-                if black:
-                    move = self._black_ai.play(self._board.black_board, self._board.white_board, 0)
-                else:
-                    move = self._white_ai.play(self._board.white_board, self._board.black_board, 0)
-                
-            self._board.move_piece(move, black)
+            move = raw_input(prompt)
+            self.board.move_piece(move, black)
             black = not black

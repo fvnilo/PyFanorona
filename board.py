@@ -23,24 +23,6 @@ class Board:
         """Ctor"""
         self.white_board = self._init_white_board()
         self.black_board = self._init_black_board()
-    
-    def draw_board(self):
-        """Prints the current state board"""
-        print "  A B C D E F G H I"
-        for i in range(5, 0, -1):
-            line = str(i) + " "
-            for j in range(0, 9):
-                val = 1 << (i * 9 + j - 9)
-                if self.white_board & val == val:
-                    line += "O "
-                elif self.black_board & val == val:
-                    line += "X "
-                else:
-                    line += ". "
-                    
-            print line
-            
-        print ""
             
     def move_piece(self, play, black):
         """Moves piece that was selected"""
@@ -52,8 +34,6 @@ class Board:
         
         start = x1 + (y1 * 9)
         end = x2 + (y2 * 9)
-        
-       
         
         if black:
             if not Move.is_legal_move(start, end, self.black_board, self.white_board):
@@ -67,10 +47,38 @@ class Board:
             
             self.white_board = Move.apply_attack_move(start, end, self.white_board)
             self.black_board = Move.apply_defense_move(start, end, self.black_board)
-            
+      
+    def check(self, pos):
+        """Check what is on the board at a given position"""
+        val = 1 << pos
+        if self.white_board & val == val:
+            return 1
+        elif self.black_board & val == val:
+            return 2
+        else:
+            return 0
+          
     def game_is_finished(self):
         """Returns whether the game is finished or not"""
-        return self.white_board == 0 or self.black_board == 0 
+        return self.white_board == 0 or self.black_board == 0
+    
+    def print_board(self):
+        """Prints the current state board"""
+        print "  A B C D E F G H I"
+        for i in range(5, 0, -1):
+            line = str(i) + " "
+            for j in range(0, 9):
+                stone = self.check(i * 9 + j - 9)
+                if stone == 1:
+                    line += "O "
+                elif stone == 2:
+                    line += "X "
+                else:
+                    line += ". "
+                    
+            print line
+            
+        print ""
                 
     def _init_white_board(self):
         """Initializes the white board"""
