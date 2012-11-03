@@ -37,17 +37,19 @@ class Board:
         
         if black:
             if not Move.is_legal_move(start, end, self.black_board, self.white_board):
-                raise ValueError("Invalid move")
+                return False
             
             self.black_board = Move.apply_attack_move(start, end, self.black_board)
             self.white_board = Move.apply_defense_move(start, end, self.white_board)
         else:
             if not Move.is_legal_move(start, end, self.white_board, self.black_board):
-                raise ValueError("Invalid move")
+                return False
             
             self.white_board = Move.apply_attack_move(start, end, self.white_board)
             self.black_board = Move.apply_defense_move(start, end, self.black_board)
-      
+        
+        return True
+              
     def check(self, pos):
         """Check what is on the board at a given position"""
         val = 1 << pos
