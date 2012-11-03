@@ -71,7 +71,7 @@ class Move:
             shift = cls._calc_shift(end, move, mult)
         
     
-        while board & 1 << shift == (1 << shift):
+        while board & 1 << shift == (1 << shift) and cls.must_continue(start, shift, move):
             board ^= 1 << shift
             mult +=1
             if withdrawal:
@@ -80,6 +80,18 @@ class Move:
                 shift = cls._calc_shift(start, move, mult)
         
         return board
+    
+    @classmethod
+    def must_continue(cls, start, shift, move):
+        """Check whether captures can continue or not."""
+        if move == cls.LEFT or move == cls.RIGHT:
+            return start // 9 == shift // 9
+        
+        if move == cls.UP or move == cls.DOWN:
+            return True
+        
+        return (shift == 0 and start % 10 == 0) or shift != 0
+        
     
     @classmethod
     def _calc_shift(cls, start, move, mult):
