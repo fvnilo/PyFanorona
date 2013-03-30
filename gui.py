@@ -31,19 +31,25 @@ from helpers import load_image
 from pygame.locals import MOUSEBUTTONUP
 
 class GUI:
+    # Constants
+    EMPTY = 0
+    PLAYER_ONE = 1
+    PLAYER_TWO = 2
+    BOARD_WIDTH = 9
+    BOARD_HEIGHT = 5
+    WINDOW_WIDTH = 800
+    WINDOW_HEIGHT = 431
+    SPACE_DIST = 45
+    STONE_SIZE = 47
+    X_OFFSET = Y_OFFSET = 5
+
+
     """This class represents the GUI of the game."""
-    def __init__(self, board, width=800,height=431):
+    def __init__(self, board):
         """Ctor"""
         self.board = board
-        self.width = width
-        self.height = height
         self.background = pygame.image.load("data/images/board.png")
-        self.screen = pygame.display.set_mode((self.width, self.height))
-        self.space_dist = 45 
-        self.stone_size = 47
-        self.xOff = 5
-        self.yOff = 5
-        
+        self.screen = pygame.display.set_mode((self.WINDOW_WIDTH, self.WINDOW_HEIGHT))
         self.current_stone = None
             
     def start_main_loop(self):
@@ -51,7 +57,7 @@ class GUI:
         and drawing sprites."""
         backgroundRect = self.background.get_rect()
         self.load_sprites()
-        self.current_player = 1
+        self.current_player = self.PLAYER_ONE
         
         while 1:
             for event in pygame.event.get():
@@ -72,22 +78,23 @@ class GUI:
         self.two_stones = pygame.sprite.Group()
         self.empties = pygame.sprite.Group()
         
-        for y in range(5):
-            for x in range(9):
-                xPos = self.xOff + x*self.stone_size + x*self.space_dist
-                yPos = self.yOff + y*self.stone_size + y*self.space_dist
-                
-                pos = (4-y) * 9 + x;
+        for y in range(self.BOARD_HEIGHT):
+            for x in range(self.BOARD_WIDTH):
+                xPos = self.X_OFFSET + x * self.STONE_SIZE + x * self.SPACE_DIST
+                yPos = self.Y_OFFSET + y * self.STONE_SIZE + y * self.SPACE_DIST
+
+                # Compute the index on the bitmap
+                pos = (self.BOARD_HEIGHT - y - 1) * self.BOARD_WIDTH + x;
                 stone = self.board.check(pos)
                 
-                if stone == 0:
-                    self.empties.add(Stone(stone, x, 5-y, pygame.Rect(xPos, yPos, self.stone_size, self.stone_size)))
+                if stone == self.EMPTY:
+                    self.empties.add(Stone(stone, x, 5-y, pygame.Rect(xPos, yPos, self.STONE_SIZE, self.STONE_SIZE)))
                     
-                if stone == 1:
-                    self.one_stones.add(Stone(stone, x, 5-y, pygame.Rect(xPos, yPos, self.stone_size, self.stone_size)))
+                if stone == self.PLAYER_ONE:
+                    self.one_stones.add(Stone(stone, x, 5-y, pygame.Rect(xPos, yPos, self.STONE_SIZE, self.STONE_SIZE)))
                     
-                if stone == 2:
-                    self.two_stones.add(Stone(stone, x, 5-y, pygame.Rect(xPos, yPos, self.stone_size, self.stone_size)))
+                if stone == self.PLAYER_TWO:
+                    self.two_stones.add(Stone(stone, x, 5-y, pygame.Rect(xPos, yPos, self.STONE_SIZE, self.STONE_SIZE)))
                     
     def handle_click(self):
         """Handles the click event on the board"""
@@ -100,7 +107,7 @@ class GUI:
     
     def pick_stone(self, pos):
         """Picks up a stone when we click on it."""
-        if self.current_player == 1:
+        if self.current_player == self.PLAYER_ONE:
             collisions = [s for s in self.one_stones if s.rect.collidepoint(pos)]
         else:
             collisions = [s for s in self.two_stones if s.rect.collidepoint(pos)]
@@ -113,40 +120,41 @@ class GUI:
         collisions = [s for s in self.empties if s.rect.collidepoint(pos)]
     
         if len(collisions):
-            empty = collisions[0]
-            x, y = empty.getPos()
-            empty.kill()
+            self.empty = collisions[0]
+            x, y = self.empty.getPos()
+            self.empty.kill()
             start = self.current_stone.get_coordinates()
-            end = empty.get_coordinates()
+            end = self.empty.get_coordinates()
             print start, end
-            if self.board.move_piece(start+end, self.current_player == 2):
-                self.current_stone.move(x, y, empty.coord_x, empty.coord_y)
+            if self.board.move_piece(start + end, self.current_player == self.PLAYER_TWO):
+                self.current_stone.move(x, y, self.empty.coord_x, self.empty.coord_y)
                 self.update()
                 
-                if self.current_player == 1:
-                    self.current_player = 2
+                if self.current_player == self.PLAYER_ONE:
+                    self.current_player = self.PLAYER_TWO
                 else:
-                    self.current_player = 1
+                    self.current_player = self.PLAYER_ONE
             
         self.current_stone = None
         
     def update(self):
         """Updates the sprites' state after a move"""
-        for y in range(5):
-            for x in range(9):
-                xPos = self.xOff + x*self.stone_size + x*self.space_dist
-                yPos = self.yOff + y*self.stone_size + y*self.space_dist
+        for y in range(self.BOARD_HEIGHT):
+            for x in range(self.BOARD_WIDTH):
+                xPos = self.X_OFFSET + x * self.STONE_SIZE + x * self.SPACE_DIST
+                yPos = self.Y_OFFSET + y * self.STONE_SIZE + y * self.SPACE_DIST
                 
-                pos = (4-y) * 9 + x;
+                pos = (self.BOARD_HEIGHT - y - 1) * self.BOARD_WIDTH + x;
                 board_stone = self.board.check(pos)
                 
-                if board_stone == 0:
-                    if self.current_player == 1:
-                        stones = [s for s in self.two_stones if s.rect.collidepoint((xPos+1, yPos+1))]
+                if board_stone == self.EMPTY:
+                    if self.current_player == self.PLAYER_ONE:
+                        stones = [s for s in self.two_stones if s.rect.collidepoint((xPos + 1, yPos + 1))]
                     else:
-                        stones = [s for s in self.one_stones if s.rect.collidepoint((xPos+1, yPos+1))]
+                        stones = [s for s in self.one_stones if s.rect.collidepoint((xPos + 1, yPos + 1))]
+
                     if not stones or (len(stones) == 1 and stones[0].player != 0):
-                        self.empties.add(Stone(0, x, 5-y, pygame.Rect(xPos, yPos, self.stone_size, self.stone_size)))
+                        self.empties.add(Stone(0, x, self.BOARD_HEIGHT - y, pygame.Rect(xPos, yPos, self.STONE_SIZE, self.STONE_SIZE)))
                         
                     if len(stones) == 1 and stones[0].player != 0:
                         stones[0].kill()
